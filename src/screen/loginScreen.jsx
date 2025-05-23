@@ -37,11 +37,11 @@ const LoginScreen = () => {
           </button>
         </form>
         <p className='mt-4 text-center text-black'>
-          Don't have an account?{" "}
+          Forgot password?{" "}
           <a
-            href='/register'
+            href='/forgot-password'
             className='text-yellow-500 font-semibold hover:text-yellow-400'>
-            Register here
+            Reset now
           </a>
         </p>
       </div>
