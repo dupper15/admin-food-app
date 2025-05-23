@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { FaSearch } from "react-icons/fa";
 import { BsThreeDots } from "react-icons/bs";
 import DetailModal from "../components/detailModal";
+import CreateAdminModal from "../components/createAdminModal";
+import { UserPlus } from "lucide-react";
 const ManageUser = () => {
   const [openMenuUserId, setOpenMenuUserId] = useState(null);
   const handleDisable = (userId) => {
@@ -15,6 +17,8 @@ const ManageUser = () => {
     setShow(true);
   };
   const [show, setShow] = useState(false);
+  const [showCreateAdmin, setShowCreateAdmin] = useState(false);
+
   const customers = [
     {
       _id: "67d9214bf4722d58ebc02690",
@@ -193,10 +197,9 @@ const ManageUser = () => {
   const filteredUsers = users.filter((user) => {
     const roleMatch =
       selectedRole === "All" || user.role.trim() === selectedRole.trim();
-    const nameMatch = user.name
-      ?.toLowerCase()
+    const nameMatch = (user.name || "")
+      .toLowerCase()
       .includes(searchTerm.toLowerCase());
-
     return roleMatch && nameMatch;
   });
 
@@ -216,32 +219,37 @@ const ManageUser = () => {
   return (
     <div className='p-6 bg-slate-100 min-h-screen text-gray-900'>
       <h1 className='text-2xl font-bold mb-6 text-slate-900'>User List</h1>
+      <div className='flex justify-between items-center mb-6'>
+        <div className=' flex gap-4 items-center'>
+          <div className='relative w-64'>
+            <span className='absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400'>
+              <FaSearch />
+            </span>
+            <input
+              type='text'
+              placeholder='Search users...'
+              className='bg-white border border-gray-300 rounded-md pl-10 pr-4 py-2 w-full text-gray-800 placeholder-gray-500 shadow-sm focus:outline-none focus:ring-2 focus:ring-yellow-400'
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
 
-      <div className='mb-6 flex gap-4 items-center'>
-        <div className='relative w-64'>
-          <span className='absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400'>
-            <FaSearch />
-          </span>
-          <input
-            type='text'
-            placeholder='Search users...'
-            className='bg-white border border-gray-300 rounded-md pl-10 pr-4 py-2 w-full text-gray-800 placeholder-gray-500 shadow-sm focus:outline-none focus:ring-2 focus:ring-yellow-400'
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
+          <select
+            className='bg-white border border-gray-300 rounded-md px-3 py-2 text-gray-800 shadow-sm focus:outline-none focus:ring-2 focus:ring-yellow-400'
+            value={selectedRole}
+            onChange={(e) => setSelectedRole(e.target.value)}>
+            <option value='All'>All Roles</option>
+            <option value='Admin'>Admin</option>
+            <option value='Customer'>Customer</option>
+            <option value='Editor'>Restaurant Owner</option>
+          </select>
         </div>
-
-        <select
-          className='bg-white border border-gray-300 rounded-md px-3 py-2 text-gray-800 shadow-sm focus:outline-none focus:ring-2 focus:ring-yellow-400'
-          value={selectedRole}
-          onChange={(e) => setSelectedRole(e.target.value)}>
-          <option value='All'>All Roles</option>
-          <option value='Admin'>Admin</option>
-          <option value='Customer'>Customer</option>
-          <option value='Editor'>Restaurant Owner</option>
-        </select>
+        <button
+          onClick={() => setShowCreateAdmin(true)}
+          className='flex items-center gap-2 px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600'>
+          <UserPlus size={20} />
+        </button>
       </div>
-
       <div className='overflow-x-auto bg-white rounded-lg shadow-md'>
         <table className='min-w-full table-auto'>
           <thead className='bg-yellow-500 text-black uppercase text-sm'>
@@ -325,7 +333,6 @@ const ManageUser = () => {
           </tbody>
         </table>
       </div>
-
       <div className='flex justify-center mt-8'>
         <div className='flex items-center gap-2'>
           <button
@@ -358,6 +365,9 @@ const ManageUser = () => {
           type={selectedType}
           setShow={setShow}
         />
+      )}
+      {showCreateAdmin && (
+        <CreateAdminModal setShowCreateAdmin={setShowCreateAdmin} />
       )}
     </div>
   );

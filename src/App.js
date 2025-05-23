@@ -1,15 +1,16 @@
 import "./App.css";
-import LoginScreen from "./screen/loginScreen.tsx";
+import LoginScreen from "./screen/loginScreen.jsx";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
 import Layout from "./screen/mainScreen.jsx";
-import Home from "./screen/home.tsx";
+import Home from "./screen/home.jsx";
 import ManageUser from "./screen/manageUser.jsx";
 import ManageRestaurant from "./screen/manageRestaurant.jsx";
 import RestaurantDetail from "./screen/restaurantDetail.jsx";
 import ManageReflect from "./screen/manageReflect.jsx";
 import NotificationAndVoucher from "./screen/notificationAndVoucher.jsx";
 import DishesAnalytics from "./screen/dishesAnalytics.jsx";
+import ForgotPassword from "./screen/forgotPassword.jsx";
 const queryClient = new QueryClient();
 
 function App() {
@@ -31,6 +32,7 @@ function App() {
           </Route>
           <Route path='/restaurant-detail' element={<RestaurantDetail />} />
           <Route path='/dishes-analytics' element={<DishesAnalytics />} />
+          <Route path='/forgot-password' element={<ForgotPassword />} />
         </Routes>
       </Router>
     </QueryClientProvider>

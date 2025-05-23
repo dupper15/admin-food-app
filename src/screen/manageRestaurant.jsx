@@ -5,34 +5,49 @@ import {
   MdOutlineKeyboardArrowDown,
 } from "react-icons/md";
 import { BsThreeDots } from "react-icons/bs";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
+import PendingResModal from "../components/pendingResModal";
 
 const ManageRestaurant = () => {
   const [sortConfig, setSortConfig] = useState({ key: null, direction: "asc" });
   const [currentPage, setCurrentPage] = useState(1);
   const [openMenuUserId, setOpenMenuUserId] = useState(null);
+  const [showPending, setShowPending] = useState(false);
 
   const restaurants = [
     {
       _id: "67de302c5c568660258059bf",
       owner_id: {
         avatar:
-          "https://res.cloudinary.com/dqj0xv8gk/image/upload/v1698231234/restaurant/owner/1.jpg",
+          "https://th.bing.com/th/id/R.3cc588feaf371d15a08af29be09045f4?rik=2gvoIqWlRk7RjA&riu=http%3a%2f%2f3.bp.blogspot.com%2f-msqjsqduxxk%2fUb33VLQWhtI%2fAAAAAAAAAEk%2fvNcs9dWUk6M%2fs1600%2f2-jollibee.jpeg&ehk=gpRZLHTFlXrGfVpvDho%2ftp74lW3ObQQVODZXz6LjQsU%3d&risl=&pid=ImgRaw&r=0",
       },
       name: "Hadilao235",
       total_reviews: 0,
       address: "ktx khu a dh quoc gia tp hcm",
       total_orders: 1,
+      status: "Pending",
+      banners: [
+        "https://th.bing.com/th/id/OIP.4WJdGJ8gNs3l69Szh6Q76wHaE7?rs=1&pid=ImgDetMain",
+        "https://th.bing.com/th/id/OIP.Vy4jzWD0lv5zDv3PZTblAAHaE7?rs=1&pid=ImgDetMain",
+        "https://th.bing.com/th/id/OIP.rNPWtL_LZPHM1g2LNpvxNAHaEo?rs=1&pid=ImgDetMain",
+      ],
     },
     {
       _id: "67de302c5c568660258059c0",
       owner_id: {
         avatar:
-          "https://res.cloudinary.com/dqj0xv8gk/image/upload/v1698231240/restaurant/owner/2.jpg",
+          "https://th.bing.com/th/id/R.3cc588feaf371d15a08af29be09045f4?rik=2gvoIqWlRk7RjA&riu=http%3a%2f%2f3.bp.blogspot.com%2f-msqjsqduxxk%2fUb33VLQWhtI%2fAAAAAAAAAEk%2fvNcs9dWUk6M%2fs1600%2f2-jollibee.jpeg&ehk=gpRZLHTFlXrGfVpvDho%2ftp74lW3ObQQVODZXz6LjQsU%3d&risl=&pid=ImgRaw&r=0",
       },
       name: "Bún Bò Huế 123",
       total_reviews: 12,
       address: "123 Lê Văn Việt, Q.9, TP.HCM",
       total_orders: 50,
+      status: "Pending",
+      banners: [
+        "https://th.bing.com/th/id/OIP.4WJdGJ8gNs3l69Szh6Q76wHaE7?rs=1&pid=ImgDetMain",
+        "https://th.bing.com/th/id/OIP.Vy4jzWD0lv5zDv3PZTblAAHaE7?rs=1&pid=ImgDetMain",
+        "https://th.bing.com/th/id/OIP.rNPWtL_LZPHM1g2LNpvxNAHaEo?rs=1&pid=ImgDetMain",
+      ],
     },
     {
       _id: "67de302c5c568660258059c1",
@@ -44,6 +59,7 @@ const ManageRestaurant = () => {
       total_reviews: 30,
       address: "456 Nguyễn Trãi, Q.5, TP.HCM",
       total_orders: 100,
+      status: "Enabled",
     },
   ];
   const [searchTerm, setSearchTerm] = useState("");
@@ -96,17 +112,24 @@ const ManageRestaurant = () => {
     <div className='p-6 bg-slate-100 min-h-screen text-gray-900'>
       <h1 className='text-2xl font-bold mb-6'>Restaurant List</h1>
       <div className='mb-6 flex gap-4 items-center'>
-        <div className='relative w-64'>
-          <span className='absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400'>
-            <FaSearch />
-          </span>
-          <input
-            type='text'
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder='Search restaurant name...'
-            className='bg-white border border-gray-300 rounded-md pl-10 pr-4 py-2 w-full text-gray-800 placeholder-gray-500 shadow-sm focus:outline-none focus:ring-2 focus:ring-yellow-400'
-          />
+        <div className='flex justify-between items-center w-full'>
+          <div className='relative w-64'>
+            <span className='absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400'>
+              <FaSearch />
+            </span>
+            <input
+              type='text'
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder='Search restaurant name...'
+              className='bg-white border border-gray-300 rounded-md pl-10 pr-4 py-2 w-full text-gray-800 placeholder-gray-500 shadow-sm focus:outline-none focus:ring-2 focus:ring-yellow-400'
+            />
+          </div>
+          <button
+            onClick={() => setShowPending(!showPending)}
+            className='mb-4 px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600 flex items-center gap-2'>
+            {showPending ? <FaEyeSlash /> : <FaEye />}
+          </button>
         </div>
       </div>
 
@@ -246,6 +269,12 @@ const ManageRestaurant = () => {
           </button>
         </div>
       </div>
+      {showPending && (
+        <PendingResModal
+          setShowPending={setShowPending}
+          restaurants={restaurants.filter((res) => res.status === "Pending")}
+        />
+      )}
     </div>
   );
 };
