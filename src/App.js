@@ -18,21 +18,21 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <Router>
         <Routes>
-          <Route path='/' element={<LoginScreen />} />
-          <Route path='/main' element={<Layout />}>
+          <Route path="/" element={<LoginScreen />} />
+          <Route path="/main" element={<Layout />}>
             {/* <Route index element={<Navigate to='task' replace />} /> */}
-            <Route path='home' element={<Home />} />
-            <Route path='user' element={<ManageUser />} />
-            <Route path='restaurant' element={<ManageRestaurant />} />
-            <Route path='reflect' element={<ManageReflect />} />
+            <Route path="home" element={<Home />} />
+            <Route path="user" element={<ManageUser />} />
+            <Route path="restaurant" element={<ManageRestaurant />} />
+            <Route path="reflect" element={<ManageReflect />} />
             <Route
-              path='notification_voucher'
+              path="notification_voucher"
               element={<NotificationAndVoucher />}
             />
           </Route>
-          <Route path='/restaurant-detail' element={<RestaurantDetail />} />
-          <Route path='/dishes-analytics' element={<DishesAnalytics />} />
-          <Route path='/forgot-password' element={<ForgotPassword />} />
+          <Route path="/restaurant-detail" element={<RestaurantDetail />} />
+          <Route path="/dishes-analytics" element={<DishesAnalytics />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
         </Routes>
       </Router>
     </QueryClientProvider>

@@ -1,11 +1,33 @@
+import { useMutation } from "@tanstack/react-query";
 import { X } from "lucide-react";
 import { useState } from "react";
+import { createAdmin } from "../services/userService";
 
-const CreateAdminModal = ({ setShowCreateAdmin }) => {
+const CreateAdminModal = ({ setShowCreateAdmin, setRefresh, refresh }) => {
   const [admin, setAdmin] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
+
+  const createAdminMutation = useMutation({
+    mutationFn: async (data) => {
+      return await createAdmin(data);
+    },
+    onSuccess: () => {
+      setRefresh(!refresh);
+      setAdmin("");
+      setEmail("");
+      setPassword("");
+      setConfirmPassword("");
+      setError("");
+      setShowCreateAdmin(false);
+      console.log("Create admin success");
+    },
+    onError: (error) => {
+      console.error("Create admin failed:", error);
+    },
+  });
 
   const handleCreate = () => {
     if (!admin || !password || !confirmPassword) {
@@ -18,62 +40,73 @@ const CreateAdminModal = ({ setShowCreateAdmin }) => {
       return;
     }
 
-    console.log("Tạo admin:", { admin, password });
+    const data = {
+      username: admin,
+      email,
+      password,
+      confirmPassword,
+    };
 
-    setAdmin("");
-    setPassword("");
-    setConfirmPassword("");
-    setError("");
-    setShowCreateAdmin(false);
+    createAdminMutation.mutate(data);
   };
 
   return (
-    <div className='fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm'>
-      <div className='relative w-full max-w-md bg-white p-6 rounded-xl shadow-lg'>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+      <div className="relative w-full max-w-md bg-white p-6 rounded-xl shadow-lg">
         <button
           onClick={() => setShowCreateAdmin(false)}
-          className='absolute top-4 right-4 text-gray-500 hover:text-black'>
+          className="absolute top-4 right-4 text-gray-500 hover:text-black"
+        >
           <X size={24} />
         </button>
 
-        <h2 className='text-xl font-semibold mb-4 text-center text-black'>
+        <h2 className="text-xl font-semibold mb-4 text-center text-black">
           Tạo tài khoản admin
         </h2>
 
-        <div className='flex flex-col gap-4'>
+        <div className="flex flex-col gap-4">
           <input
-            type='text'
-            placeholder='Tên admin'
+            type="text"
+            placeholder="Tên admin"
             value={admin}
             onChange={(e) => setAdmin(e.target.value)}
-            className='border px-3 py-2 rounded-md outline-none focus:ring-2 ring-blue-300'
+            className="border px-3 py-2 rounded-md outline-none focus:ring-2 ring-blue-300"
           />
           <input
-            type='password'
-            placeholder='Mật khẩu'
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="border px-3 py-2 rounded-md outline-none focus:ring-2 ring-blue-300"
+          />
+          <input
+            type="password"
+            placeholder="Mật khẩu"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className='border px-3 py-2 rounded-md outline-none focus:ring-2 ring-blue-300'
+            className="border px-3 py-2 rounded-md outline-none focus:ring-2 ring-blue-300"
           />
           <input
-            type='password'
-            placeholder='Xác nhận mật khẩu'
+            type="password"
+            placeholder="Xác nhận mật khẩu"
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
-            className='border px-3 py-2 rounded-md outline-none focus:ring-2 ring-blue-300'
+            className="border px-3 py-2 rounded-md outline-none focus:ring-2 ring-blue-300"
           />
 
-          {error && <p className='text-sm text-red-600'>{error}</p>}
+          {error && <p className="text-sm text-red-600">{error}</p>}
 
-          <div className='flex justify-end gap-2 pt-2'>
+          <div className="flex justify-end gap-2 pt-2">
             <button
               onClick={() => setShowCreateAdmin(false)}
-              className='px-4 py-2 rounded-md border hover:bg-gray-100'>
+              className="px-4 py-2 rounded-md border hover:bg-gray-100"
+            >
               Hủy
             </button>
             <button
               onClick={handleCreate}
-              className='px-4 py-2 rounded-md bg-yellow-500 text-white hover:bg-yellow-600'>
+              className="px-4 py-2 rounded-md bg-yellow-500 text-white hover:bg-yellow-600"
+            >
               Tạo
             </button>
           </div>
