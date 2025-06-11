@@ -23,6 +23,16 @@ export const fetchAllRestaurantPending = async () => {
   }
 };
 
+export const fetchDetailRestaurant = async (id) => {
+  try {
+    const response = await axiosInstance.get(`restaurants/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching details restaurant:", error);
+    throw error;
+  }
+};
+
 export const changeStatusRestaurant = async (id) => {
   try {
     const response = await axiosInstance.patch(

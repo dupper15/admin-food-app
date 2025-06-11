@@ -20,6 +20,7 @@ const PendingResModal = ({
   refresh,
 }) => {
   const [restaurants, setRestaurants] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   const getPending = useMutation({
     mutationFn: async () => {
@@ -27,9 +28,11 @@ const PendingResModal = ({
     },
     onSuccess: (data) => {
       setRestaurants(data);
+      setIsLoading(false);
       console.log("Fetch restaurant pending success:", data);
     },
     onError: (error) => {
+      setIsLoading(false);
       console.error("Fetch restaurant pending failed:", error);
     },
   });
@@ -84,21 +87,31 @@ const PendingResModal = ({
         >
           <X size={24} />
         </button>
-
         <h2 className="text-xl font-semibold mb-4 text-yellow-700">
           Pending restaurant list
         </h2>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {restaurants.map((res) => (
-            <Card
-              key={res._id}
-              res={res}
-              onApprove={handleApprove}
-              onReject={handleReject}
-            />
-          ))}
-        </div>
+        {isLoading ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {[...Array(2)].map((_, index) => (
+              <div key={index} className="animate-pulse">
+                <div className="bg-gray-200 h-48 w-full rounded-lg"></div>
+                <div className="mt-2 h-6 bg-gray-200 rounded w-3/4"></div>
+                <div className="mt-2 h-4 bg-gray-200 rounded w-1/2"></div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {restaurants.map((res) => (
+              <Card
+                key={res._id}
+                res={res}
+                onApprove={handleApprove}
+                onReject={handleReject}
+              />
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

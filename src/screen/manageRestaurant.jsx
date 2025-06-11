@@ -200,29 +200,31 @@ const ManageRestaurant = () => {
           <tbody>
             {isLoading ? (
               <tr>
-                <td colSpan={6} className="text-center py-10">
-                  <div className="inline-flex items-center gap-2 text-yellow-600">
-                    <svg
-                      className="animate-spin h-6 w-6 text-yellow-500"
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                    >
-                      <circle
-                        className="opacity-25"
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        stroke="currentColor"
-                        strokeWidth="4"
-                      ></circle>
-                      <path
-                        className="opacity-75"
-                        fill="currentColor"
-                        d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
-                      ></path>
-                    </svg>
-                    <span>Loading restaurants...</span>
+                <td colSpan={6} className="py-10">
+                  <div className="flex justify-center items-center min-h-[200px]">
+                    <div className="inline-flex items-center gap-2 text-yellow-600">
+                      <svg
+                        className="animate-spin h-6 w-6 text-yellow-500"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                      >
+                        <circle
+                          className="opacity-25"
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          strokeWidth="4"
+                        ></circle>
+                        <path
+                          className="opacity-75"
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                        ></path>
+                      </svg>
+                      <span>Loading restaurants...</span>
+                    </div>
                   </div>
                 </td>
               </tr>
@@ -279,7 +281,7 @@ const ManageRestaurant = () => {
                         >
                           {res.status === "Disable" ? "Enable" : "Disable"}
                         </button>
-                        <a href="/restaurant-detail">
+                        <a href={`/restaurant-detail?id=${res._id}`}>
                           <button className="w-full text-left px-4 py-2 hover:bg-yellow-100">
                             View Detail
                           </button>

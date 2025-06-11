@@ -23,3 +23,14 @@ export const createCategory = async (data) => {
     throw error;
   }
 };
+
+export const fetchAll = async () => {
+  try {
+    const response = await axiosInstance.get(`categories/fetchall-category`);
+    console.log(response);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching categories:", error);
+    throw error;
+  }
+};

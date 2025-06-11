@@ -3,13 +3,15 @@ import CategoryModal from "../components/categoryModal";
 import VoucherModal from "../components/voucherModal";
 import NotificationModal from "../components/notificationModal";
 import { useMutation } from "@tanstack/react-query";
-import { createCategory, fetchAllCategory } from "../services/categoryService";
+import { fetchAllCategory } from "../services/categoryService";
+import { getAllVoucher } from "../services/voucherService";
 
 const NotificationAndVoucher = () => {
   const [openNotificationModal, setOpenNotificationModal] = useState(false);
   const [openVoucherModal, setOpenVoucherModal] = useState(false);
   const [showCategoryModal, setShowCategoryModal] = useState(false);
   const [categories, setCategories] = useState([]);
+  const [vouchers, setVouchers] = useState([]);
   const [refresh, setRefresh] = useState(false);
 
   const getAllCategory = useMutation({
@@ -25,8 +27,22 @@ const NotificationAndVoucher = () => {
     },
   });
 
+  const getAllVoucherMutation = useMutation({
+    mutationFn: async () => {
+      return await getAllVoucher();
+    },
+    onSuccess: (data) => {
+      setVouchers(data);
+      console.log("Fetch voucher success:", data);
+    },
+    onError: (error) => {
+      console.error("Fetch voucher failed:", error);
+    },
+  });
+
   useEffect(() => {
     getAllCategory.mutate();
+    getAllVoucherMutation.mutate();
   }, [refresh]);
 
   const notificationData = [
@@ -36,32 +52,6 @@ const NotificationAndVoucher = () => {
       content: "Đã có phản hồi mới từ khách hàng.",
       create_at: "2025-05-15T10:12:00Z",
       isSeen: false,
-    },
-  ];
-
-  const vouchersData = [
-    {
-      _id: "1",
-      code: "VOUCHER10P",
-      name: "Giảm 10% cho đơn hàng đầu tiên",
-      quantity: 100,
-      start_date: "2025-05-01T00:00:00Z",
-      expire_date: "2025-05-31T23:59:59Z",
-      value: 0.1,
-      max: 50000,
-      min: 100000,
-      content: "Giảm 10% cho đơn hàng đầu tiên tại nhà hàng ABC",
-    },
-    {
-      _id: "2",
-      code: "GIAM20K",
-      name: "Giảm 20,000đ cho đơn từ 100,000đ",
-      quantity: 200,
-      start_date: "2025-05-05T00:00:00Z",
-      expire_date: "2025-06-05T23:59:59Z",
-      value: 20000,
-      min: 100000,
-      content: "Áp dụng toàn hệ thống",
     },
   ];
 
@@ -109,7 +99,7 @@ const NotificationAndVoucher = () => {
           </button>
         </div>
         <div className="grid md:grid-cols-2 gap-4">
-          {vouchersData.map((v) => (
+          {vouchers.map((v) => (
             <div key={v._id} className="bg-white rounded-xl p-5 shadow-md">
               <div className="flex justify-between text-sm text-gray-600 mb-2">
                 <span className="font-semibold">
@@ -138,7 +128,11 @@ const NotificationAndVoucher = () => {
                   <span className="text-yellow-600 font-semibold">
                     Tối thiểu:
                   </span>{" "}
-                  {v.min.toLocaleString()} đ
+                  {v.min | 0} đ
+                </div>
+                <div>
+                  <span className="text-yellow-600 font-semibold">Tối đa:</span>{" "}
+                  {v.max | 0} đ
                 </div>
               </div>
             </div>
@@ -153,19 +147,8 @@ const NotificationAndVoucher = () => {
             onClick={() => setOpenNotificationModal(true)}
             className="bg-yellow-500 hover:bg-yellow-600 text-black font-medium px-4 py-2 rounded shadow transition"
           >
-            + Add Notification
+            Send Notification
           </button>
-        </div>
-        <div className="grid md:grid-cols-2 gap-4">
-          {notificationData.map((noti) => (
-            <div key={noti._id} className="bg-white rounded-xl p-5 shadow-md">
-              <div className="flex justify-between text-sm text-gray-500">
-                <span className="font-semibold">{noti.title}</span>
-                <span>{new Date(noti.create_at).toLocaleString()}</span>
-              </div>
-              <p className="mt-3 text-gray-700">{noti.content}</p>
-            </div>
-          ))}
         </div>
       </section>
 
@@ -182,7 +165,11 @@ const NotificationAndVoucher = () => {
         />
       )}
       {openVoucherModal && (
-        <VoucherModal setOpenVoucherModal={setOpenVoucherModal} />
+        <VoucherModal
+          setOpenVoucherModal={setOpenVoucherModal}
+          refresh={refresh}
+          setRefresh={setRefresh}
+        />
       )}
     </div>
   );
