@@ -1,21 +1,39 @@
 import { useMutation } from "@tanstack/react-query";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { FaSearch } from "react-icons/fa";
-import { getAllReflect } from "../services/reflectService";
+import { getAllReflect, replyReflect } from "../services/reflectService";
+import { formatID } from "./../utils/formatID";
+import { debounce } from "lodash";
 
 const ManageReflect = () => {
-  const [replies, setReplies] = useState({});
   const [currentPage, setCurrentPage] = useState(1);
   const [filter, setFilter] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
   const [reflects, setReflects] = useState([]);
   const [countReflect, setCountReflect] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingSend, setIsLoadingSend] = useState({});
+  const [messages, setMessages] = useState({});
+  const [refresh, setRefresh] = useState(false);
   const itemsPerPage = 2;
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+
+  const debounceSearch = useCallback(
+    debounce((val) => {
+      setDebouncedSearch(val);
+    }, 500),
+    []
+  );
+
+  const handleSearchChange = (e) => {
+    const val = e.target.value;
+    setSearchTerm(val);
+    debounceSearch(val);
+  };
 
   const getAllReflectMutation = useMutation({
-    mutationFn: async ({ page, limit }) => {
-      return await getAllReflect(page, limit);
+    mutationFn: async ({ page, limit, filter, q }) => {
+      return await getAllReflect(page, limit, filter, q);
     },
     onSuccess: (data) => {
       setReflects(data.data);
@@ -29,36 +47,45 @@ const ManageReflect = () => {
     },
   });
 
+  const replyReflectMutation = useMutation({
+    mutationFn: async ({ id, message }) => {
+      return await replyReflect(id, message);
+    },
+    onSuccess: (data) => {
+      alert(`Reply successful`);
+      setMessages((prev) => ({ ...prev, [data._id]: "" }));
+      console.log("Reply reflect success:", data);
+      setRefresh((prev) => !prev);
+      setIsLoadingSend((prev) => ({ ...prev, [data._id]: true }));
+      setIsLoading(false);
+    },
+    onError: (error) => {
+      setIsLoading(false);
+      console.error("Reply reflect failed:", error);
+    },
+  });
+
   useEffect(() => {
     setIsLoading(true);
     getAllReflectMutation.mutate({
       page: currentPage,
       limit: itemsPerPage,
+      filter: filter,
+      q: debouncedSearch,
     });
-  }, [currentPage, itemsPerPage]);
-
-  const filteredReflects = reflects
-    .filter((item) => {
-      if (filter === "replied") return item.replies_array.length > 0;
-      if (filter === "unreplied") return item.replies_array.length === 0;
-      return true;
-    })
-    .filter((item) => {
-      const name = item?.customer_id?.name?.toLowerCase?.() || "";
-      const email = item?.customer_id?.email?.toLowerCase?.() || "";
-      const term = searchTerm?.toLowerCase?.() || "";
-      return name.includes(term) || email.includes(term);
-    });
+  }, [currentPage, filter, debouncedSearch, refresh]);
 
   const totalPages = Math.ceil(countReflect / itemsPerPage);
 
-  const handleReplyChange = (id, value) => {
-    setReplies((prev) => ({ ...prev, [id]: value }));
+  const handleChangeMessage = (id, value) => {
+    setMessages((prev) => ({ ...prev, [id]: value }));
   };
 
-  const handleSendReply = (id) => {
-    alert(`Reply for Reflect ${id}: ${replies[id] || ""}`);
-    setReplies((prev) => ({ ...prev, [id]: "" }));
+  const handleSendReply = (reflect) => {
+    const msg = messages[reflect._id];
+    if (!msg?.trim()) return;
+    replyReflectMutation.mutate({ id: reflect?._id, message: msg });
+    setIsLoadingSend((prev) => ({ ...prev, [reflect._id]: true }));
   };
 
   return (
@@ -73,7 +100,7 @@ const ManageReflect = () => {
           placeholder="Search users..."
           className="bg-white border border-gray-300 rounded-md pl-10 pr-4 py-2 w-full text-gray-800 placeholder-gray-500 shadow-sm focus:outline-none focus:ring-2 focus:ring-yellow-400"
           value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
+          onChange={handleSearchChange}
         />
       </div>
       <div className="flex gap-4 mb-4">
@@ -116,12 +143,12 @@ const ManageReflect = () => {
         <div className="text-center text-gray-500 py-10">
           Loading feedback...
         </div>
-      ) : filteredReflects.length === 0 ? (
+      ) : reflects.length === 0 ? (
         <div className="text-center text-gray-500 py-10">
           No feedback found.
         </div>
       ) : (
-        filteredReflects.map((reflect) => (
+        reflects.map((reflect) => (
           <div
             key={reflect?._id}
             className={`border p-4 rounded-xl shadow-sm transition ${
@@ -133,7 +160,7 @@ const ManageReflect = () => {
             <div className="flex justify-between items-center mb-2">
               <div className="text-sm text-gray-600">
                 Customer: {reflect?.customer_id?.name} (
-                {reflect?.customer_id?._id}) |{" "}
+                {formatID(reflect?.customer_id?._id)}) |{" "}
                 {new Date(reflect?.create_at).toLocaleString()}
               </div>
               {reflect.restaurant_id && (
@@ -191,15 +218,17 @@ const ManageReflect = () => {
               <input
                 type="text"
                 placeholder="Enter your reply..."
-                value={replies[reflect._id] || ""}
-                onChange={(e) => handleReplyChange(reflect._id, e.target.value)}
+                value={messages[reflect._id] || ""}
+                onChange={(e) =>
+                  handleChangeMessage(reflect._id, e.target.value)
+                }
                 className="flex-1 border rounded px-3 py-1"
               />
               <button
-                onClick={() => handleSendReply(reflect._id)}
+                onClick={() => handleSendReply(reflect)}
                 className="bg-yellow-500 text-white px-4 py-1 rounded hover:bg-yellow-700"
               >
-                Send
+                {isLoadingSend[reflect._id] ? "Sending..." : "Send"}
               </button>
             </div>
           </div>

@@ -1,9 +1,9 @@
 import axiosInstance from "./api";
 
-export const getAllReflect = async (page, limit) => {
+export const getAllReflect = async (page, limit, filter = "all", q = "") => {
   try {
     const response = await axiosInstance.get(`reflect/by-admin`, {
-      params: { page, limit },
+      params: { page, limit, filter, q },
     });
     console.log(response);
     return response.data;
@@ -15,7 +15,9 @@ export const getAllReflect = async (page, limit) => {
 
 export const replyReflect = async (id, message) => {
   try {
-    const response = await axiosInstance.post(`reflect/reply/${id}`, message);
+    const response = await axiosInstance.post(`reflect/reply/${id}`, {
+      message,
+    });
     console.log(response);
     return response.data;
   } catch (error) {

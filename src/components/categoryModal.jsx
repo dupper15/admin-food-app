@@ -5,11 +5,12 @@ import { useState } from "react";
 const CategoryModal = ({ setShowCategoryModal, refresh, setRefresh }) => {
   const [name, setName] = useState("");
   const [imageUrl, setImageUrl] = useState("");
+  const [file, setFile] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
 
   const createCategoryMutation = useMutation({
-    mutationFn: async ({ name, imageUrl }) => {
-      return await createCategory({ name, imageUrl });
+    mutationFn: async (formData) => {
+      return await createCategory(formData);
     },
     onSuccess: (data) => {
       setRefresh(!refresh);
@@ -28,7 +29,10 @@ const CategoryModal = ({ setShowCategoryModal, refresh, setRefresh }) => {
 
   const handleCreate = () => {
     setIsLoading(true);
-    createCategoryMutation.mutate({ name, imageUrl });
+    const formData = new FormData();
+    formData.append("name", name);
+    formData.append("images", file);
+    createCategoryMutation.mutate(formData);
   };
 
   return (
@@ -46,13 +50,12 @@ const CategoryModal = ({ setShowCategoryModal, refresh, setRefresh }) => {
           />
         </div>
         <div className="mb-4">
-          <label className="block mb-1 text-sm">Image URL</label>
+          <label className="block mb-1 text-sm">Image</label>
           <input
-            type="text"
-            value={imageUrl}
-            onChange={(e) => setImageUrl(e.target.value)}
-            placeholder="Paste image URL..."
-            className="w-full border border-gray-300 px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-yellow-400"
+            type="file"
+            accept="image/*"
+            onChange={(e) => setFile(e.target.files[0])}
+            className="w-full"
           />
         </div>
         <div className="flex justify-end gap-2">

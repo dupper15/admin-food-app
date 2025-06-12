@@ -13,9 +13,13 @@ export const fetchAllCategory = async () => {
   }
 };
 
-export const createCategory = async (data) => {
+export const createCategory = async (formData) => {
   try {
-    const response = await axiosInstance.post(`categories/create`, data);
+    const response = await axiosInstance.post(`categories/create`, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
     console.log(response);
     return response.data;
   } catch (error) {
